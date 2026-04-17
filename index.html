@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Banking Accounts</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #f0f2f5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  }
+
+  .panel {
+    width: 500px;
+    background: #ffffff;
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.12), 0 1px 3px rgba(0,0,0,0.08);
+    overflow: hidden;
+  }
+
+  .header {
+    background: #1a5dab;
+    padding: 14px 18px;
+  }
+
+  .header h2 {
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+  }
+
+  .account-row {
+    padding: 20px 0 20px 18px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .account-row + .account-row {
+    border-top: 1px solid #e0e0e0;
+  }
+
+  .account-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #333333;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    margin-bottom: 10px;
+  }
+
+  .balance-area {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    padding-right: 52px; /* space for the bars */
+  }
+
+  .balance-amount {
+    font-size: 38px;
+    font-weight: 700;
+    color: #111111;
+    line-height: 1;
+    letter-spacing: -0.01em;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .balance-label {
+    font-size: 12.5px;
+    color: #888888;
+    margin-top: 5px;
+    font-weight: 400;
+  }
+
+  /* Decorative vertical bars on the right */
+  .bars {
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    display: flex;
+    align-items: stretch;
+    gap: 5px;
+    padding: 14px 8px;
+  }
+
+  .bar {
+    width: 7px;
+    background: #1a5dab;
+    border-radius: 1px;
+  }
+</style>
+</head>
+<body>
+
+<div class="panel">
+  <div class="header">
+    <h2>Banking Accounts (2)</h2>
+  </div>
+
+  <!-- Row 1: Total Checking -->
+  <div class="account-row">
+    <div class="account-label">TOTAL CHECKING (...8208) &gt;</div>
+    <div class="balance-area">
+      <div class="balance-amount" id="checking-balance">$0.00</div>
+      <div class="balance-label">Avaiable balance</div>
+    </div>
+    <div class="bars">
+      <div class="bar"></div>
+      <div class="bar"></div>
+    </div>
+  </div>
+
+  <!-- Row 2: Chase Savings -->
+  <div class="account-row">
+    <div class="account-label">CHASE SAVINGS (...1281) &gt;</div>
+    <div class="balance-area">
+      <div class="balance-amount" id="savings-balance">$0.00</div>
+      <div class="balance-label">Avaiable balance</div>
+    </div>
+    <div class="bars">
+      <div class="bar"></div>
+      <div class="bar"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function easeOut(t) {
+    return 1 - Math.pow(1 - t, 3);
+  }
+
+  function formatDollars(value) {
+    return '$' + value.toLocaleString('en-US', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    });
+  }
+
+  function animateCounter(el, target, startFrame, endFrame) {
+    const totalFrames = endFrame - startFrame;
+
+    function tick(frame) {
+      requestAnimationFrame(() => {
+        if (frame < startFrame) {
+          // Not started yet — show $0.00, schedule next
+          requestAnimationFrame(() => tick(frame + 1));
+          return;
+        }
+
+        const elapsed = frame - startFrame;
+        const progress = Math.min(elapsed / totalFrames, 1);
+        const eased = easeOut(progress);
+        const current = eased * target;
+
+        el.textContent = formatDollars(current);
+
+        if (progress < 1) {
+          requestAnimationFrame(() => tick(frame + 1));
+        }
+      });
+    }
+
+    tick(0);
+  }
+
+  const checkingEl = document.getElementById('checking-balance');
+  const savingsEl  = document.getElementById('savings-balance');
+
+  // Checking: frames 0–120 (4s at 30fps feel)
+  animateCounter(checkingEl, 5000,  0, 120);
+  // Savings: frames 30–150 (starts 1s later)
+  animateCounter(savingsEl,  10000, 30, 150);
+</script>
+</body>
+</html>
